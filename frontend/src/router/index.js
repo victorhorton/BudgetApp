@@ -23,4 +23,16 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach(() => {
+  let modalBackground = document.querySelector("#navbarOffcanvasLg");
+  let offCanvasBackdrop = document.querySelector(".offcanvas-backdrop");
+
+  if (modalBackground) {
+    modalBackground.classList.remove("show");
+  }
+  if (offCanvasBackdrop) {
+    offCanvasBackdrop.classList.remove("show");
+  }
+});
+
 export default router;

@@ -26,7 +26,7 @@ export default {
   mounted() {
     axios({
       method: "get",
-      url: "http://localhost:5286/WeatherForecast",
+      url: "http://localhost:5286/Budget",
       responseType: "json",
     }).then((resp) => {
       this.weather = resp.data;
