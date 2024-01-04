@@ -27,6 +27,11 @@
               >About</router-link
             >
           </li>
+          <li class="nav-item">
+            <router-link to="/budget" active-class="active" class="nav-link"
+              >Budget</router-link
+            >
+          </li>
         </ul>
       </div>
     </div>
