@@ -3,6 +3,11 @@ module.exports = defineConfig({
   transpileDependencies: true,
   outputDir: "../../wwwroot/",
   devServer: {
-    proxy: "http://localhost:5277"
+    proxy: {
+      "^/": {
+        target: "http://localhost:5277",
+        ws: false
+      }
+    }
   }
 });

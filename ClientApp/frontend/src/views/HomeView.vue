@@ -13,6 +13,20 @@ export default {
   name: "HomeView",
   components: {
     HelloWorld
+  },
+  data() {
+    return {
+      weather: []
+    };
+  },
+  mounted() {
+    fetch("/WeatherForecast")
+      .then((resp) => {
+        return resp.json();
+      })
+      .then((data) => {
+        this.weather = data;
+      });
   }
 };
 </script>
