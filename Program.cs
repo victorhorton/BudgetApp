@@ -16,6 +16,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseDefaultFiles(); // Serve default index.html page
+app.UseStaticFiles();  // Serve static files from the wwwroot directory
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
