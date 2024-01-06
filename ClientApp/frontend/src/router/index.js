@@ -13,7 +13,7 @@ const routes = [
     component: () => import("../views/AboutView.vue")
   },
   {
-    path: "/budget",
+    path: "/budgets",
     name: "budget",
     component: () => import("../views/Budget/IndexView.vue")
   }

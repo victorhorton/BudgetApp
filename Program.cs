@@ -1,3 +1,5 @@
+using BudgetApp.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSqlite<DataContext>("Data Source=BudgetApp.db");
 
 var app = builder.Build();
 
@@ -18,6 +21,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseDefaultFiles(); // Serve default index.html page
 app.UseStaticFiles();  // Serve static files from the wwwroot directory
+app.UseRouting();
 
 app.UseHttpsRedirection();
 

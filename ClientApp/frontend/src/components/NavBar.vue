@@ -28,7 +28,7 @@
             >
           </li>
           <li class="nav-item">
-            <router-link to="/budget" active-class="active" class="nav-link"
+            <router-link to="/budgets" active-class="active" class="nav-link"
               >Budget</router-link
             >
           </li>
