@@ -17,13 +17,44 @@ public class BudgetController : ControllerBase
     }
 
     [HttpGet]
-    [HttpGet]
-    public ActionResult<IEnumerable<Budget>> GetBudgets()
+    public async Task<ActionResult<Budget>> GetBudgets()
     {
-        return _dataContext.Budgets
+        var budget = await _dataContext.Budgets
             .Include(budget => budget.Categories)
             .ThenInclude(category => category.Items)
             .ThenInclude(item => item.Transactions)
-            .ToList();
+            .FirstOrDefaultAsync();
+
+        if (budget == null)
+        {
+            return NotFound(); // Return 404 if budget is not found
+        }
+
+        return budget;
+    }
+
+    // GET: api/budget/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Budget>> GetBudget(int id)
+    {
+        var budget = await _dataContext.Budgets.FindAsync(id);
+
+        if (budget == null)
+        {
+            return NotFound(); // Return 404 if budget is not found
+        }
+
+        return budget;
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<Budget>> PostBudget(Budget budget)
+    {
+        _dataContext.Budgets.Add(budget);
+        await _dataContext.SaveChangesAsync();
+
+        // Return 201 Created status code and the created budget
+        // You can use CreatedAtAction to return a 201 status code and the newly created resource
+        return CreatedAtAction(nameof(GetBudget), new { id = budget.Id }, budget);
     }
 }
