@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "BudgetIndexView",
   data() {
@@ -24,14 +26,9 @@ export default {
     };
   },
   mounted() {
-    fetch("/api/Budget")
-      .then((resp) => {
-        return resp.json();
-      })
-      .then((data) => {
-        debugger;
-        this.budget = data;
-      });
+    axios.get("/api/Budget").then((resp) => {
+      this.budget = resp.data;
+    });
   },
   methods: {
     addTranzaction() {

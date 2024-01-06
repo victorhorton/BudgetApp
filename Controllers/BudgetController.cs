@@ -27,7 +27,7 @@ public class BudgetController : ControllerBase
 
         if (budget == null)
         {
-            return NotFound(); // Return 404 if budget is not found
+            return new Budget(); // Return 404 if budget is not found
         }
 
         return budget;
