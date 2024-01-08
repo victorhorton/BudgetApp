@@ -17,17 +17,17 @@
     >
       <div class="offcanvas-body">
         <ul class="navbar-nav justify-content-center flex-grow-1 pe-3">
-          <li class="nav-item">
+          <li class="nav-item text-center">
             <router-link to="/" active-class="active" class="nav-link"
               >Home</router-link
             >
           </li>
-          <li class="nav-item">
+          <li class="nav-item text-center">
             <router-link to="/about" active-class="active" class="nav-link"
               >About</router-link
             >
           </li>
-          <li class="nav-item">
+          <li class="nav-item text-center">
             <router-link to="/budgets" active-class="active" class="nav-link"
               >Budget</router-link
             >

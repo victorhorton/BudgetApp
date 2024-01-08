@@ -1,5 +1,40 @@
 <template>
-  <div class="row"></div>
+  <div class="row">
+    <div class="col">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <h1>{{ budget.month }}</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-for="category in budget.categories" :key="category.id" class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ category }}</h5>
+          <p class="card-text">
+            With supporting text below as a natural lead-in to additional
+            content.
+          </p>
+          <a href="#" class="btn btn-primary">Go somewhere</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <button
+        type="button"
+        class="btn btn-primary"
+        @click="addCategory('Income')"
+      >
+        Add Category
+      </button>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -31,32 +66,18 @@ export default {
     });
   },
   methods: {
-    addTranzaction() {
-      this.budget.transactions.push(this.newTransaction);
-      this.newTransaction = {
-        type: "",
-        date: "",
-        vendor: "",
-        item: "",
-        amount: "",
-        number: "",
-        notes: ""
-      };
-    },
-    totalSpend(item) {
-      return this.budget.transactions
-        .filter((transaction) => {
-          return transaction.item === item.name;
+    addCategory(name) {
+      axios
+        .post("/api/category", {
+          name,
+          budgetId: this.budget.id
         })
-        .map((transaction) => {
-          return transaction.amount;
-        })
-        .reduce((accumulator, currentValue) => {
-          return accumulator + currentValue;
-        }, 0);
-    },
-    totalRemaining(item) {
-      return item.plannedAmount - this.totalSpend(item);
+        .then((response) => {
+          if (response.status === 201) {
+            this.budget.categories.push(response.data);
+          }
+          console.log(response);
+        });
     }
   },
   computed: {

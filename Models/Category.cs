@@ -8,6 +8,5 @@ public class Category
 
      public ICollection<Item> Items { get; } = new List<Item>();
     public int BudgetId { get; set; } // Required foreign key property
-    public Budget Budget { get; set; } = null!;     
-
+    public Budget? Budget { get; set; } 
 }
