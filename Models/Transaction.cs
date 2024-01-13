@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using BudgetApp.Converters;
+using Newtonsoft.Json;
 
 namespace BudgetApp.Models;
 
@@ -6,6 +8,7 @@ public class Transaction
 {
     public int Id { get; set; }
 
+    [JsonConverter(typeof(DateConverter))]
     [DataType(DataType.Date)]
     public DateTime Date { get; set; }
     public string? Type { get; set; }
