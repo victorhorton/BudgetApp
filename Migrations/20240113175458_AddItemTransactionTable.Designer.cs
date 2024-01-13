@@ -3,6 +3,7 @@ using System;
 using BudgetApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240113175458_AddItemTransactionTable")]
+    partial class AddItemTransactionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.0");
@@ -72,21 +75,6 @@ namespace BudgetApp.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("BudgetApp.Models.ItemTransaction", b =>
-                {
-                    b.Property<int>("ItemId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ItemId", "TransactionId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.ToTable("ItemTransactions");
-                });
-
             modelBuilder.Entity("BudgetApp.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -116,6 +104,21 @@ namespace BudgetApp.Migrations
                     b.ToTable("Transactions");
                 });
 
+            modelBuilder.Entity("ItemTransaction", b =>
+                {
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ItemId", "TransactionId");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("ItemTransactions");
+                });
+
             modelBuilder.Entity("BudgetApp.Models.Category", b =>
                 {
                     b.HasOne("BudgetApp.Models.Budget", "Budget")
@@ -138,7 +141,7 @@ namespace BudgetApp.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("BudgetApp.Models.ItemTransaction", b =>
+            modelBuilder.Entity("ItemTransaction", b =>
                 {
                     b.HasOne("BudgetApp.Models.Item", "Item")
                         .WithMany("ItemTransactions")

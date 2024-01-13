@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using BudgetApp.Models;
 using BudgetApp.Data;
 using Microsoft.EntityFrameworkCore;
+using BudgetApp.Requests;
 
 namespace BudgetApp.Controllers;
 
@@ -45,13 +46,40 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Transaction>> PostTransaction(Transaction transaction)
+    public async Task<ActionResult<Transaction>> PostTransaction(TransactionCreationDto transactionDto)
     {
+        // Create new Transaction entity from DTO
+        var transaction = new Transaction
+        {
+            Date = transactionDto.Date,
+            Type = transactionDto.Type,
+            Vendor = transactionDto.Vendor,
+            Amount = transactionDto.Amount,
+            Description = transactionDto.Description,
+            Number = transactionDto.Number
+        };
+
+        // Add Transaction to database context
         _dataContext.Transactions.Add(transaction);
         await _dataContext.SaveChangesAsync();
 
+        // Loop through each Item ID in the DTO and create associations in the junction table
+        foreach (var itemId in transactionDto.ItemIds)
+        {
+            var itemTransaction = new ItemTransaction
+            {
+                TransactionId = transaction.Id,  // Assuming Id is the primary key of Transaction
+                ItemId = itemId
+            };
+
+            // Assuming you have a DbSet for ItemTransaction in your DbContext
+            _dataContext.ItemTransactions.Add(itemTransaction);
+        }
+
+        // Save changes to the database
+        await _dataContext.SaveChangesAsync();
+
         // Return 201 Created status code and the created transaction
-        // You can use CreatedAtAction to return a 201 status code and the newly created resource
         return CreatedAtAction(nameof(GetTransaction), new { id = transaction.Id }, transaction);
     }
 
@@ -63,5 +91,44 @@ public class TransactionController : ControllerBase
         await _dataContext.SaveChangesAsync();
 
         return NoContent(); // 204 No Content response upon successful update
+    }
+
+    // POST api/transactions/add-items
+    [HttpPost("add-items")]
+    public async Task<IActionResult> AddItemsToTransaction([FromBody] AddItemsToTransactionRequest request)
+    {
+        if (request == null || request.TransactionId == 0 || request.ItemIds == null || request.ItemIds.Count == 0)
+        {
+            return BadRequest("Invalid request parameters");
+        }
+
+        var transaction = await _dataContext.Transactions.FindAsync(request.TransactionId);
+
+        if (transaction == null)
+        {
+            return NotFound("Transaction not found");
+        }
+
+        foreach (var itemId in request.ItemIds)
+        {
+            var item = await _dataContext.Items.FindAsync(itemId);
+
+            if (item == null)
+            {
+                continue; // or return NotFound($"Item with ID {itemId} not found");
+            }
+
+            var itemTransaction = new ItemTransaction
+            {
+                ItemId = itemId,
+                TransactionId = request.TransactionId
+            };
+
+            _dataContext.ItemTransactions.Add(itemTransaction);
+        }
+
+        await _dataContext.SaveChangesAsync();
+
+        return Ok("Items added to transaction successfully");
     }
 }

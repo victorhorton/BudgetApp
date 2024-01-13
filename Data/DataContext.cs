@@ -14,6 +14,7 @@ public class DataContext : DbContext
     public DbSet<Item> Items => Set<Item>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<ItemTransaction> ItemTransactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

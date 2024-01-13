@@ -10,6 +10,6 @@ public class Item
     public int CategoryId { get; set; } // Required foreign key property
     public Category? Category { get; set; }
 
-    public ICollection<ItemTransaction> ItemTransactions { get; set; }
+    public ICollection<ItemTransaction>? ItemTransactions { get; set; }
 
 }
