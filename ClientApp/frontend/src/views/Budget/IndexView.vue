@@ -14,7 +14,18 @@
     <div class="col">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">{{ category }}</h5>
+          <h5 class="card-title">
+            <input
+              type="text"
+              class="form-control"
+              :class="category.isValid ? 'is-valid' : ''"
+              v-model="category.name"
+              @change="updateCategory(category)"
+            />
+            <div class="invalid-feedback">
+              {{ category.error }}
+            </div>
+          </h5>
           <p class="card-text">
             With supporting text below as a natural lead-in to additional
             content.
@@ -26,11 +37,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <button
-        type="button"
-        class="btn btn-primary"
-        @click="addCategory('Income')"
-      >
+      <button type="button" class="btn btn-primary" @click="addCategory()">
         Add Category
       </button>
     </div>
@@ -45,6 +52,10 @@ export default {
   data() {
     return {
       totalRemainingView: true,
+      newCategory: {
+        name: "",
+        budgetId: null
+      },
       newTransaction: {
         type: "",
         date: "",
@@ -63,13 +74,14 @@ export default {
   mounted() {
     axios.get("/api/Budget").then((resp) => {
       this.budget = resp.data;
+      this.newCategory.budgetId = this.budget.id;
     });
   },
   methods: {
-    addCategory(name) {
+    addCategory() {
       axios
         .post("/api/category", {
-          name,
+          name: "",
           budgetId: this.budget.id
         })
         .then((response) => {
@@ -78,6 +90,12 @@ export default {
           }
           console.log(response);
         });
+    },
+    updateCategory(category) {
+      delete category.error;
+      axios.put(`/api/category/${category.id}`, category).catch((error) => {
+        category.error = error.message;
+      });
     }
   },
   computed: {

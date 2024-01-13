@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetApp.Models;
 using BudgetApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BudgetApp.Controllers;
 
@@ -38,5 +39,15 @@ public class CategoryController : ControllerBase
         // Return 201 Created status code and the created category
         // You can use CreatedAtAction to return a 201 status code and the newly created resource
         return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
+    }
+
+    // PUT: api/categories/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCategory(int id, Category updatedCategory)
+    {
+        _dataContext.Update(updatedCategory);
+        await _dataContext.SaveChangesAsync();
+
+        return NoContent(); // 204 No Content response upon successful update
     }
 }
