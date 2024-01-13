@@ -8,7 +8,7 @@ public class Item
     public decimal PlannedAmount { get; set; }
 
     public int CategoryId { get; set; } // Required foreign key property
-    public Category Category { get; set; } = null!;
+    public Category? Category { get; set; }
 
     public List<Transaction> Transactions { get; } = new();
 
