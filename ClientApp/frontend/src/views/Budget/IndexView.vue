@@ -302,6 +302,19 @@
                 />
               </div>
             </div>
+            <div class="row">
+              <div class="col">
+                <select
+                  v-model="newTransaction.itemIds"
+                  multiple
+                  class="form-select"
+                >
+                  <option v-for="item in items" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -433,8 +446,14 @@ export default {
     }
   },
   computed: {
-    itemNames() {
-      return this.budget.items.map((item) => item.name);
+    items() {
+      return this.budget.categories
+        .map((category) => {
+          return category.items.map((item) => {
+            return { id: item.id, name: item.name };
+          });
+        })
+        .flat();
     },
     incomeTotal() {
       return this.budget.transactions

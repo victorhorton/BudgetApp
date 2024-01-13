@@ -21,7 +21,9 @@ public class TransactionController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Transaction>>> GetTransaction()
     {
-        var transactions = await _dataContext.Transactions.ToListAsync();
+        var transactions = await _dataContext.Transactions
+            .Include(transaction => transaction.ItemTransactions)
+            .ToListAsync();
 
         if (transactions.Count == 0)
         {
@@ -64,20 +66,23 @@ public class TransactionController : ControllerBase
         await _dataContext.SaveChangesAsync();
 
         // Loop through each Item ID in the DTO and create associations in the junction table
-        foreach (var itemId in transactionDto.ItemIds)
+        if (transactionDto.ItemIds != null)
         {
-            var itemTransaction = new ItemTransaction
+            foreach (var itemId in transactionDto.ItemIds)
             {
-                TransactionId = transaction.Id,  // Assuming Id is the primary key of Transaction
-                ItemId = itemId
-            };
+                var itemTransaction = new ItemTransaction
+                {
+                    TransactionId = transaction.Id,  // Assuming Id is the primary key of Transaction
+                    ItemId = itemId
+                };
 
-            // Assuming you have a DbSet for ItemTransaction in your DbContext
-            _dataContext.ItemTransactions.Add(itemTransaction);
+                // Assuming you have a DbSet for ItemTransaction in your DbContext
+                _dataContext.ItemTransactions.Add(itemTransaction);
+            }
+
+            // Save changes to the database
+            await _dataContext.SaveChangesAsync();
         }
-
-        // Save changes to the database
-        await _dataContext.SaveChangesAsync();
 
         // Return 201 Created status code and the created transaction
         return CreatedAtAction(nameof(GetTransaction), new { id = transaction.Id }, transaction);
