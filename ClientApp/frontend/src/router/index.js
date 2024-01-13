@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
+import { Offcanvas } from "bootstrap";
 
 const routes = [
   {
@@ -22,6 +23,16 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+});
+
+router.afterEach(() => {
+  const openedCanvas = Offcanvas.getInstance(
+    document.getElementById("navbarOffcanvasLg")
+  );
+
+  if (openedCanvas) {
+    openedCanvas.hide();
+  }
 });
 
 export default router;
