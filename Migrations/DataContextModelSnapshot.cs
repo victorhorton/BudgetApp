@@ -98,20 +98,20 @@ namespace BudgetApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transaction", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("ItemTransaction", b =>
                 {
-                    b.Property<int>("ItemsId")
+                    b.Property<int>("ItemId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TransactionsId")
+                    b.Property<int>("TransactionId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("ItemsId", "TransactionsId");
+                    b.HasKey("ItemId", "TransactionId");
 
-                    b.HasIndex("TransactionsId");
+                    b.HasIndex("TransactionId");
 
                     b.ToTable("ItemTransaction");
                 });
@@ -140,17 +140,21 @@ namespace BudgetApp.Migrations
 
             modelBuilder.Entity("ItemTransaction", b =>
                 {
-                    b.HasOne("BudgetApp.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsId")
+                    b.HasOne("BudgetApp.Models.Item", "Item")
+                        .WithMany("ItemTransactions")
+                        .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BudgetApp.Models.Transaction", null)
-                        .WithMany()
-                        .HasForeignKey("TransactionsId")
+                    b.HasOne("BudgetApp.Models.Transaction", "Transaction")
+                        .WithMany("ItemTransactions")
+                        .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("BudgetApp.Models.Budget", b =>
@@ -161,6 +165,16 @@ namespace BudgetApp.Migrations
             modelBuilder.Entity("BudgetApp.Models.Category", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("BudgetApp.Models.Item", b =>
+                {
+                    b.Navigation("ItemTransactions");
+                });
+
+            modelBuilder.Entity("BudgetApp.Models.Transaction", b =>
+                {
+                    b.Navigation("ItemTransactions");
                 });
 #pragma warning restore 612, 618
         }

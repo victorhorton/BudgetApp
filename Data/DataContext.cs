@@ -27,8 +27,17 @@ public class DataContext : DbContext
             .WithOne(c => c.Category)
             .HasForeignKey(c => c.CategoryId);
 
-        modelBuilder.Entity<Transaction>().ToTable(nameof(Transaction))
-            .HasMany(c => c.Items)
-            .WithMany(i => i.Transactions);
+        modelBuilder.Entity<ItemTransaction>()
+            .HasKey(it => new { it.ItemId, it.TransactionId });
+
+        modelBuilder.Entity<ItemTransaction>()
+            .HasOne(it => it.Item)
+            .WithMany(i => i.ItemTransactions)
+            .HasForeignKey(it => it.ItemId);
+
+        modelBuilder.Entity<ItemTransaction>()
+            .HasOne(it => it.Transaction)
+            .WithMany(t => t.ItemTransactions)
+            .HasForeignKey(it => it.TransactionId);
     }
 }

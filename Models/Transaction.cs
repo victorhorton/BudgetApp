@@ -21,5 +21,5 @@ public class Transaction
 
     public string? Number{ get; set; }
 
-    public List<Item> Items { get; } = new();
+    public ICollection<ItemTransaction> ItemTransactions { get; set; }
 }
