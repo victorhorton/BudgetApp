@@ -10,7 +10,11 @@
       </div>
     </div>
   </div>
-  <div v-for="category in budget.categories" :key="category.id" class="row">
+  <div
+    v-for="category in budget.categories"
+    :key="category.id"
+    class="row my-3"
+  >
     <div class="col">
       <div class="card">
         <div class="card-body">
@@ -28,7 +32,7 @@
               </div>
             </div>
           </div>
-          <div class="row">
+          <div class="row my-3">
             <div class="col">
               <ul class="list-group list-group-flush">
                 <li
@@ -53,13 +57,19 @@
                         @change="updateItem(item)"
                       />
                     </div>
+                    <div class="col-auto">
+                      <button
+                        class="btn-close"
+                        @click="deleteItem(item, category)"
+                      ></button>
+                    </div>
                   </div>
                 </li>
               </ul>
             </div>
           </div>
-          <div class="row">
-            <div class="col">
+          <div class="row justify-content-between">
+            <div class="col-auto">
               <button
                 type="button"
                 class="btn btn-link"
@@ -68,13 +78,22 @@
                 Add Item
               </button>
             </div>
+            <div class="col-auto">
+              <button
+                type="button"
+                class="btn btn-link"
+                @click="deleteCategory(category)"
+              >
+                Delete Category
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
   <div class="row">
-    <div class="col">
+    <div class="col-auto">
       <button type="button" class="btn btn-primary" @click="addCategory()">
         Add Category
       </button>
@@ -141,6 +160,23 @@ export default {
             category.items.push(response.data);
           }
         });
+    },
+    deleteCategory(category) {
+      axios.delete(`/api/category/${category.id}`).then((response) => {
+        if (response.status === 204) {
+          this.budget.categories.splice(
+            this.budget.categories.indexOf(category),
+            1
+          );
+        }
+      });
+    },
+    deleteItem(item, category) {
+      axios.delete(`/api/item/${item.id}`).then((response) => {
+        if (response.status === 204) {
+          category.items.splice(category.items.indexOf(item), 1);
+        }
+      });
     },
     updateItem(item) {
       delete item.error;

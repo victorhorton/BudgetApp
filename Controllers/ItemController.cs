@@ -49,4 +49,21 @@ public class ItemController : ControllerBase
 
         return NoContent(); // 204 No Content response upon successful update
     }
+
+    // DELETE api/items/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteItem(int id)
+    {
+        var item = await _dataContext.Items.FindAsync(id);
+
+        if (item == null)
+        {
+            return NotFound();
+        }
+
+        _dataContext.Remove(item);
+        await _dataContext.SaveChangesAsync();
+
+        return NoContent(); // 204 No Content response upon successful update
+    }
 }

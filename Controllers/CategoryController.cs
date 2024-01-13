@@ -50,4 +50,21 @@ public class CategoryController : ControllerBase
 
         return NoContent(); // 204 No Content response upon successful update
     }
+
+    // DELETE api/categories/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        var category = await _dataContext.Categories.FindAsync(id);
+
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        _dataContext.Remove(category);
+        await _dataContext.SaveChangesAsync();
+
+        return NoContent(); // 204 No Content response upon successful update
+    }
 }
