@@ -92,11 +92,113 @@
       </div>
     </div>
   </div>
-  <div class="row">
+  <div class="row justify-content-between">
     <div class="col-auto">
       <button type="button" class="btn btn-primary" @click="addCategory()">
         Add Category
       </button>
+    </div>
+    <div class="col-auto">
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#transactionModal"
+      >
+        Add Transaction
+      </button>
+    </div>
+  </div>
+  <div
+    class="modal fade"
+    id="transactionModal"
+    tabindex="-1"
+    aria-labelledby="transactionModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="transactionModalLabel">
+            Add Transaction
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <form @submit.prevent="addTransaction()">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-auto">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="incomeRadio"
+                    value="income"
+                    v-model="newTransaction.type"
+                  />
+                  <label class="form-check-label" for="incomeRadio">
+                    Income
+                  </label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="expenseRadio"
+                    value="expense"
+                    v-model="newTransaction.type"
+                  />
+                  <label class="form-check-label" for="expenseRadio">
+                    Expense
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <input
+                  type="number"
+                  class="form-control"
+                  v-model.number="newTransaction.amount"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-auto">
+                <input
+                  type="date"
+                  class="form-control"
+                  v-model="newTransaction.date"
+                />
+              </div>
+              <div class="col">
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="newTransaction.vendor"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button class="btn btn-primary">Save Transaction</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -108,30 +210,28 @@ export default {
   name: "BudgetIndexView",
   data() {
     return {
-      totalRemainingView: true,
-      newCategory: {
-        name: "",
-        budgetId: null
-      },
       newTransaction: {
-        type: "",
+        type: "income",
         date: "",
         vendor: "",
         item: "",
-        amount: "",
+        amount: 0,
         number: "",
         notes: ""
       },
       budget: {
         month: "",
         categories: []
-      }
+      },
+      transactions: []
     };
   },
   mounted() {
     axios.get("/api/Budget").then((resp) => {
       this.budget = resp.data;
-      this.newCategory.budgetId = this.budget.id;
+    });
+    axios.get("/api/Transaction").then((resp) => {
+      this.transactions = resp.data;
     });
   },
   methods: {
@@ -160,6 +260,13 @@ export default {
             category.items.push(response.data);
           }
         });
+    },
+    addTransaction() {
+      axios.post("/api/transaction", this.newTransaction).then((response) => {
+        if (response.status === 201) {
+          this.transactions.push(response.data);
+        }
+      });
     },
     deleteCategory(category) {
       axios.delete(`/api/category/${category.id}`).then((response) => {

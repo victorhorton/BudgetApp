@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetApp.Models;
 using BudgetApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BudgetApp.Controllers;
 
@@ -13,6 +14,20 @@ public class TransactionController : ControllerBase
     public TransactionController(DataContext dataContext)
     {
         _dataContext = dataContext;
+    }
+
+    // GET: api/transaction
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Transaction>>> GetTransaction()
+    {
+        var transactions = await _dataContext.Transactions.ToListAsync();
+
+        if (transactions.Count == 0)
+        {
+            return new List<Transaction>();
+        }
+
+        return transactions;
     }
 
     // GET: api/transaction/5
