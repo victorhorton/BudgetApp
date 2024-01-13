@@ -90,6 +90,9 @@ namespace BudgetApp.Migrations
                     b.Property<string>("Number")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Type")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Vendor")
                         .HasColumnType("TEXT");
 
