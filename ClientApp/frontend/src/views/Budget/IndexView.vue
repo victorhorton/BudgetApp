@@ -10,86 +10,202 @@
       </div>
     </div>
   </div>
-  <div
-    v-for="category in budget.categories"
-    :key="category.id"
-    class="row my-3"
-  >
-    <div class="col">
-      <div class="card">
-        <div class="card-body">
-          <div class="row">
-            <div class="col">
-              <input
-                type="text"
-                class="form-control"
-                :class="category.isValid ? 'is-valid' : ''"
-                v-model="category.name"
-                @change="updateCategory(category)"
-              />
-              <div class="invalid-feedback">
-                {{ category.error }}
-              </div>
-            </div>
-          </div>
-          <div class="row my-3">
-            <div class="col">
-              <ul class="list-group list-group-flush">
-                <li
-                  class="list-group-item"
-                  v-for="item in category.items"
-                  :key="item.id"
-                >
-                  <div class="row">
-                    <div class="col">
-                      <input
-                        type="text"
-                        class="form-control"
-                        v-model="item.name"
-                        @change="updateItem(item)"
-                      />
-                    </div>
-                    <div class="col">
-                      <input
-                        type="number"
-                        class="form-control"
-                        v-model.number="item.plannedAmount"
-                        @change="updateItem(item)"
-                      />
-                    </div>
-                    <div class="col-auto">
-                      <button
-                        class="btn-close"
-                        @click="deleteItem(item, category)"
-                      ></button>
-                    </div>
+  <div class="row">
+    <div class="col-8">
+      <div
+        v-for="category in budget.categories"
+        :key="category.id"
+        class="row my-3"
+      >
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <input
+                    type="text"
+                    class="form-control"
+                    :class="category.isValid ? 'is-valid' : ''"
+                    v-model="category.name"
+                    @change="updateCategory(category)"
+                  />
+                  <div class="invalid-feedback">
+                    {{ category.error }}
                   </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="row justify-content-between">
-            <div class="col-auto">
-              <button
-                type="button"
-                class="btn btn-link"
-                @click="addItem(category)"
-              >
-                Add Item
-              </button>
-            </div>
-            <div class="col-auto">
-              <button
-                type="button"
-                class="btn btn-link"
-                @click="deleteCategory(category)"
-              >
-                Delete Category
-              </button>
+                </div>
+              </div>
+              <div class="row my-3">
+                <div class="col">
+                  <ul class="list-group list-group-flush">
+                    <li
+                      class="list-group-item"
+                      v-for="item in category.items"
+                      :key="item.id"
+                    >
+                      <div class="row">
+                        <div class="col">
+                          <input
+                            type="text"
+                            class="form-control"
+                            v-model="item.name"
+                            @change="updateItem(item)"
+                          />
+                        </div>
+                        <div class="col">
+                          <input
+                            type="number"
+                            class="form-control"
+                            v-model.number="item.plannedAmount"
+                            @change="updateItem(item)"
+                          />
+                        </div>
+                        <div class="col-auto">
+                          <button
+                            class="btn-close"
+                            @click="deleteItem(item, category)"
+                          ></button>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="row justify-content-between">
+                <div class="col-auto">
+                  <button
+                    type="button"
+                    class="btn btn-link"
+                    @click="addItem(category)"
+                  >
+                    Add Item
+                  </button>
+                </div>
+                <div class="col-auto">
+                  <button
+                    type="button"
+                    class="btn btn-link"
+                    @click="deleteCategory(category)"
+                  >
+                    Delete Category
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    <div class="col-4">
+      <ul class="list-group list-group-flush">
+        <template v-for="transaction in transactions" :key="transaction.id">
+          <button
+            type="button"
+            class="list-group-item list-group-item-action"
+            data-bs-toggle="modal"
+            :data-bs-target="`#edit-transaction-${transaction.id}-modal`"
+          >
+            <div class="row">
+              <div class="col">{{ transaction.date }}</div>
+              <div class="col">{{ transaction.vendor }}</div>
+              <div class="col">{{ transaction.amount }}</div>
+            </div>
+          </button>
+          <div
+            class="modal fade"
+            :id="`edit-transaction-${transaction.id}-modal`"
+            tabindex="-1"
+            :aria-labelledby="`edit-transaction-${transaction.id}-modal-label`"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1
+                    class="modal-title fs-5"
+                    :id="`edit-transaction-${transaction.id}-modal-label`"
+                  >
+                    Edit Transaction
+                  </h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <form @submit.prevent="updateTransaction(transaction)">
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            :id="`incomeRadio-${transaction.id}`"
+                            value="income"
+                            v-model="transaction.type"
+                          />
+                          <label
+                            class="form-check-label"
+                            :for="`incomeRadio-${transaction.id}`"
+                          >
+                            Income
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            :id="`expenseRadio-${transaction.id}`"
+                            value="expense"
+                            v-model="transaction.type"
+                          />
+                          <label
+                            class="form-check-label"
+                            :for="`expenseRadio-${transaction.id}`"
+                          >
+                            Expense
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        <input
+                          type="number"
+                          class="form-control"
+                          v-model.number="transaction.amount"
+                        />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-auto">
+                        <input
+                          type="date"
+                          class="form-control"
+                          v-model="transaction.date"
+                        />
+                      </div>
+                      <div class="col">
+                        <input
+                          type="text"
+                          class="form-control"
+                          v-model="transaction.vendor"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-primary">Save changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </template>
+      </ul>
     </div>
   </div>
   <div class="row justify-content-between">
@@ -205,6 +321,7 @@
 
 <script>
 import axios from "axios";
+import { Modal } from "bootstrap";
 
 export default {
   name: "BudgetIndexView",
@@ -265,6 +382,10 @@ export default {
       axios.post("/api/transaction", this.newTransaction).then((response) => {
         if (response.status === 201) {
           this.transactions.push(response.data);
+          const openedModal = Modal.getInstance(
+            document.getElementById("transactionModal")
+          );
+          openedModal.hide();
         }
       });
     },
@@ -296,6 +417,19 @@ export default {
       axios.put(`/api/category/${category.id}`, category).catch((error) => {
         category.error = error.message;
       });
+    },
+    updateTransaction(transaction) {
+      axios
+        .put(`/api/transaction/${transaction.id}`, transaction)
+        .then(() => {
+          const openedModal = Modal.getInstance(
+            document.getElementById(`edit-transaction-${transaction.id}-modal`)
+          );
+          openedModal.hide();
+        })
+        .catch((error) => {
+          transaction.error = error.message;
+        });
     }
   },
   computed: {
