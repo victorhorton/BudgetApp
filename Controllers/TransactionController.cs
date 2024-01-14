@@ -136,4 +136,21 @@ public class TransactionController : ControllerBase
 
         return Ok("Items added to transaction successfully");
     }
+    
+    // DELETE api/transactions/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTransaction(int id)
+    {
+        var transaction = await _dataContext.Transactions.FindAsync(id);
+
+        if (transaction == null)
+        {
+            return NotFound();
+        }
+
+        _dataContext.Remove(transaction);
+        await _dataContext.SaveChangesAsync();
+
+        return NoContent(); // 204 No Content response upon successful update
+    }
 }

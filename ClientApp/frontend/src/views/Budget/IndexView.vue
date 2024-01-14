@@ -98,18 +98,27 @@
     <div class="col-4">
       <ul class="list-group list-group-flush">
         <template v-for="transaction in transactions" :key="transaction.id">
-          <button
-            type="button"
-            class="list-group-item list-group-item-action"
-            data-bs-toggle="modal"
-            :data-bs-target="`#edit-transaction-${transaction.id}-modal`"
-          >
+          <li class="list-group-item list-group-item-action">
             <div class="row">
-              <div class="col">{{ transaction.date }}</div>
-              <div class="col">{{ transaction.vendor }}</div>
-              <div class="col">{{ transaction.amount }}</div>
+              <div class="col">
+                <div
+                  class="row pe-click"
+                  data-bs-toggle="modal"
+                  :data-bs-target="`#edit-transaction-${transaction.id}-modal`"
+                >
+                  <div class="col">{{ transaction.date }}</div>
+                  <div class="col">{{ transaction.vendor }}</div>
+                  <div class="col">{{ transaction.amount }}</div>
+                </div>
+              </div>
+              <div class="col-auto">
+                <button
+                  class="btn-close"
+                  @click="deleteTransactions(transaction)"
+                ></button>
+              </div>
             </div>
-          </button>
+          </li>
           <div
             class="modal fade"
             :id="`edit-transaction-${transaction.id}-modal`"
@@ -419,6 +428,13 @@ export default {
         }
       });
     },
+    deleteTransactions(transaction) {
+      axios.delete(`/api/transaction/${transaction.id}`).then((response) => {
+        if (response.status === 204) {
+          this.transactions.splice(this.transactions.indexOf(transaction), 1);
+        }
+      });
+    },
     updateItem(item) {
       delete item.error;
       axios.put(`/api/item/${item.id}`, item).catch((error) => {
@@ -485,3 +501,9 @@ export default {
   }
 };
 </script>
+
+<style>
+.pe-click {
+  cursor: pointer;
+}
+</style>
