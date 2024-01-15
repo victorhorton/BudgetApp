@@ -211,7 +211,7 @@
                       :key="itemTransaction.itemId"
                     >
                       <div class="col">
-                        {{ itemTransaction.itemId }}
+                        {{ itemName(itemTransaction.itemId) }}
                       </div>
                       <div class="col-auto">
                         <button
@@ -234,7 +234,7 @@
                           class="form-select"
                         >
                           <option
-                            v-for="item in items"
+                            v-for="item in filteredItems(transaction)"
                             :key="item.id"
                             :value="item.id"
                           >
@@ -474,7 +474,7 @@ export default {
             transactionId: transaction.id
           }
         })
-        .then((response) => {
+        .then(() => {
           const itemTransaction = transaction.itemTransactions.find(
             (itemTransaction) => {
               return itemTransaction.itemId === itemId;
@@ -491,6 +491,27 @@ export default {
         if (response.status === 204) {
           this.transactions.splice(this.transactions.indexOf(transaction), 1);
         }
+      });
+    },
+    itemName(itemId) {
+      const foundItem = this.items.find((item) => {
+        return item.id === itemId;
+      });
+
+      if (foundItem) {
+        return foundItem.name;
+      } else {
+        return "";
+      }
+    },
+    filteredItems(transaction) {
+      const currentItems = transaction.itemTransactions.map(
+        (itemTransaction) => {
+          return itemTransaction.itemId;
+        }
+      );
+      return this.items.filter((item) => {
+        return !currentItems.includes(item.id);
       });
     },
     updateItem(item) {
