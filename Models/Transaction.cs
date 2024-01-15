@@ -23,12 +23,12 @@ public class Transaction
 
     public ICollection<ItemTransaction>? ItemTransactions { get; set; }
 
-    public List<int> ItemIds
+    public List<int> NewItemIds
     {
         get
         {
             // Extract Item IDs from ItemTransactions and return as a list
-            return ItemTransactions?.Select(it => it.ItemId).ToList() ?? new List<int>();
+            return new List<int>();
         }
     }
 }

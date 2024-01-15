@@ -31,24 +31,12 @@ public class TransactionController : ControllerBase
             return new List<Transaction>();
         }
 
-        var transactionDtos = transactions.Select(t => new TransactionDto
-        {
-            Id = t.Id,
-            Date = t.Date,
-            Type = t.Type,
-            Vendor = t.Vendor,
-            Amount = t.Amount,
-            Description = t.Description,
-            Number = t.Number,
-            ItemIds = t.ItemIds  // Use the custom property in Transaction model to get Item IDs
-        }).ToList();
-
-        return Ok(transactionDtos);
-        }
+        return Ok(transactions);
+    }
 
     // GET: api/transaction/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<TransactionDto>> GetTransaction(int id)
+    public async Task<ActionResult<Transaction>> GetTransaction(int id)
     {
         var transaction = await _dataContext.Transactions.FindAsync(id);
 
@@ -57,19 +45,7 @@ public class TransactionController : ControllerBase
             return NotFound(); // Return 404 if transaction is not found
         }
 
-        var transactionDto = new TransactionDto
-        {
-            Id = transaction.Id,
-            Date = transaction.Date,
-            Type = transaction.Type,
-            Vendor = transaction.Vendor,
-            Amount = transaction.Amount,
-            Description = transaction.Description,
-            Number = transaction.Number,
-            ItemIds = transaction.ItemIds  // Use the custom property in Transaction model to get Item IDs
-        };
-
-        return transactionDto;
+        return transaction;
     }
 
     [HttpPost]
@@ -91,14 +67,14 @@ public class TransactionController : ControllerBase
         await _dataContext.SaveChangesAsync();
 
         // Loop through each Item ID in the DTO and create associations in the junction table
-        if (transactionDto.ItemIds != null)
+        if (transactionDto.NewItemIds != null)
         {
-            foreach (var itemId in transactionDto.ItemIds)
+            foreach (var newItemId in transactionDto.NewItemIds)
             {
                 var itemTransaction = new ItemTransaction
                 {
                     TransactionId = transaction.Id,  // Assuming Id is the primary key of Transaction
-                    ItemId = itemId
+                    ItemId = newItemId
                 };
 
                 // Assuming you have a DbSet for ItemTransaction in your DbContext
@@ -115,51 +91,45 @@ public class TransactionController : ControllerBase
 
     // PUT: api/transactions/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTransaction(int id, Transaction updatedTransaction)
+    public async Task<IActionResult> UpdateTransaction(int id, TransactionCreationDto transactionDto)
     {
-        _dataContext.Update(updatedTransaction);
-        await _dataContext.SaveChangesAsync();
-
-        return NoContent(); // 204 No Content response upon successful update
-    }
-
-    // POST api/transactions/add-items
-    [HttpPost("add-items")]
-    public async Task<IActionResult> AddItemsToTransaction([FromBody] AddItemsToTransactionRequest request)
-    {
-        if (request == null || request.TransactionId == 0 || request.ItemIds == null || request.ItemIds.Count == 0)
-        {
-            return BadRequest("Invalid request parameters");
-        }
-
-        var transaction = await _dataContext.Transactions.FindAsync(request.TransactionId);
+        var transaction = await _dataContext.Transactions.FindAsync(id);
 
         if (transaction == null)
         {
-            return NotFound("Transaction not found");
+            return NotFound("Transaction not found.");
         }
 
-        foreach (var itemId in request.ItemIds)
-        {
-            var item = await _dataContext.Items.FindAsync(itemId);
+        transaction.Date = transactionDto.Date;
+        transaction.Type = transactionDto.Type;
+        transaction.Vendor = transactionDto.Vendor;
+        transaction.Amount = transactionDto.Amount;
+        transaction.Description = transactionDto.Description;
+        transaction.Number = transactionDto.Number;
 
-            if (item == null)
+        if (transactionDto.NewItemIds != null) {
+            foreach (var itemId in transactionDto.NewItemIds)
             {
-                continue; // or return NotFound($"Item with ID {itemId} not found");
+                var item = await _dataContext.Items.FindAsync(itemId);
+
+                if (item == null)
+                {
+                    continue; // or return NotFound($"Item with ID {itemId} not found");
+                }
+
+                var itemTransaction = new ItemTransaction
+                {
+                    ItemId = itemId,
+                    TransactionId = id
+                };
+
+                _dataContext.ItemTransactions.Add(itemTransaction);
             }
-
-            var itemTransaction = new ItemTransaction
-            {
-                ItemId = itemId,
-                TransactionId = request.TransactionId
-            };
-
-            _dataContext.ItemTransactions.Add(itemTransaction);
         }
 
         await _dataContext.SaveChangesAsync();
 
-        return Ok("Items added to transaction successfully");
+        return NoContent(); // 204 No Content response upon successful update
     }
     
     // DELETE api/transactions/5
@@ -177,5 +147,41 @@ public class TransactionController : ControllerBase
         await _dataContext.SaveChangesAsync();
 
         return NoContent(); // 204 No Content response upon successful update
+    }
+    
+    [HttpDelete("delete-relationship")]
+    public IActionResult DeleteRelationship([FromBody] ItemTransactionDTO itemTransactionDTO)
+    {
+        try
+        {
+            // Retrieve the transaction and item from the database based on IDs
+            var transaction = _dataContext.Transactions.Find(itemTransactionDTO.TransactionId);
+            var item = _dataContext.Items.Find(itemTransactionDTO.ItemId);
+
+            if (transaction == null || item == null)
+            {
+                return NotFound("Transaction or item not found.");
+            }
+
+            // Check if the relationship exists
+            var relationship = _dataContext.ItemTransactions
+                .SingleOrDefault(ti => ti.TransactionId == transaction.Id && ti.ItemId == item.Id);
+
+            if (relationship == null)
+            {
+                return NotFound("Relationship not found.");
+            }
+
+            // Remove the relationship
+            _dataContext.ItemTransactions.Remove(relationship);
+            _dataContext.SaveChanges();
+
+            return Ok("Relationship deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions as needed
+            return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        }
     }
 }

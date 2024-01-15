@@ -126,7 +126,7 @@
             :aria-labelledby="`edit-transaction-${transaction.id}-modal-label`"
             aria-hidden="true"
           >
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
               <div class="modal-content">
                 <div class="modal-header">
                   <h1
@@ -144,7 +144,7 @@
                 </div>
                 <form @submit.prevent="updateTransaction(transaction)">
                   <div class="modal-body">
-                    <div class="row">
+                    <div class="row my-2">
                       <div class="col-auto">
                         <div class="form-check">
                           <input
@@ -180,7 +180,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="row">
+                    <div class="row my-2">
                       <div class="col">
                         <input
                           type="number"
@@ -189,7 +189,7 @@
                         />
                       </div>
                     </div>
-                    <div class="row">
+                    <div class="row my-2">
                       <div class="col-auto">
                         <input
                           type="date"
@@ -203,6 +203,44 @@
                           class="form-control"
                           v-model="transaction.vendor"
                         />
+                      </div>
+                    </div>
+                    <div
+                      class="row my-2"
+                      v-for="itemTransaction in transaction.itemTransactions"
+                      :key="itemTransaction.itemId"
+                    >
+                      <div class="col">
+                        {{ itemTransaction.itemId }}
+                      </div>
+                      <div class="col-auto">
+                        <button
+                          type="button"
+                          class="btn-close"
+                          @click="
+                            deleteRelationship(
+                              itemTransaction.itemId,
+                              transaction
+                            )
+                          "
+                        ></button>
+                      </div>
+                    </div>
+                    <div class="row my-2">
+                      <div class="col">
+                        <select
+                          v-model="transaction.newItemIds"
+                          multiple
+                          class="form-select"
+                        >
+                          <option
+                            v-for="item in items"
+                            :key="item.id"
+                            :value="item.id"
+                          >
+                            {{ item.name }}
+                          </option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -314,7 +352,7 @@
             <div class="row">
               <div class="col">
                 <select
-                  v-model="newTransaction.itemIds"
+                  v-model="newTransaction.newItemIds"
                   multiple
                   class="form-select"
                 >
@@ -353,10 +391,10 @@ export default {
         type: "income",
         date: "",
         vendor: "",
-        item: "",
         amount: 0,
         number: "",
-        notes: ""
+        notes: "",
+        newItemIds: []
       },
       budget: {
         month: "",
@@ -428,6 +466,26 @@ export default {
         }
       });
     },
+    deleteRelationship(itemId, transaction) {
+      axios
+        .delete("/api/transaction/delete-relationship", {
+          data: {
+            itemId,
+            transactionId: transaction.id
+          }
+        })
+        .then((response) => {
+          const itemTransaction = transaction.itemTransactions.find(
+            (itemTransaction) => {
+              return itemTransaction.itemId === itemId;
+            }
+          );
+          transaction.itemTransactions.splice(
+            transaction.itemTransactions.indexOf(itemTransaction),
+            1
+          );
+        });
+    },
     deleteTransactions(transaction) {
       axios.delete(`/api/transaction/${transaction.id}`).then((response) => {
         if (response.status === 204) {
@@ -451,6 +509,14 @@ export default {
       axios
         .put(`/api/transaction/${transaction.id}`, transaction)
         .then(() => {
+          transaction.newItemIds.forEach((newItemId) => {
+            transaction.itemTransactions.push({
+              item: null,
+              itemId: newItemId,
+              transactionId: transaction.id
+            });
+          });
+          transaction.newItemIds = [];
           const openedModal = Modal.getInstance(
             document.getElementById(`edit-transaction-${transaction.id}-modal`)
           );

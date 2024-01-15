@@ -2,8 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using BudgetApp.Converters;
 using Newtonsoft.Json;
 
-namespace 
-BudgetApp.DTOs;
+namespace BudgetApp.DTOs;
 public class TransactionDto
 {
     public int Id { get; set; }
@@ -22,5 +21,5 @@ public class TransactionDto
 
     public string? Number { get; set; }
 
-    public List<int> ItemIds { get; set; }
+    public List<int>? NewItemIds { get; set; }
 }
