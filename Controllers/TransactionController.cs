@@ -3,6 +3,7 @@ using BudgetApp.Models;
 using BudgetApp.Data;
 using Microsoft.EntityFrameworkCore;
 using BudgetApp.Requests;
+using BudgetApp.DTOs;
 
 namespace BudgetApp.Controllers;
 
@@ -30,12 +31,24 @@ public class TransactionController : ControllerBase
             return new List<Transaction>();
         }
 
-        return transactions;
-    }
+        var transactionDtos = transactions.Select(t => new TransactionDto
+        {
+            Id = t.Id,
+            Date = t.Date,
+            Type = t.Type,
+            Vendor = t.Vendor,
+            Amount = t.Amount,
+            Description = t.Description,
+            Number = t.Number,
+            ItemIds = t.ItemIds  // Use the custom property in Transaction model to get Item IDs
+        }).ToList();
+
+        return Ok(transactionDtos);
+        }
 
     // GET: api/transaction/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Transaction>> GetTransaction(int id)
+    public async Task<ActionResult<TransactionDto>> GetTransaction(int id)
     {
         var transaction = await _dataContext.Transactions.FindAsync(id);
 
@@ -44,7 +57,19 @@ public class TransactionController : ControllerBase
             return NotFound(); // Return 404 if transaction is not found
         }
 
-        return transaction;
+        var transactionDto = new TransactionDto
+        {
+            Id = transaction.Id,
+            Date = transaction.Date,
+            Type = transaction.Type,
+            Vendor = transaction.Vendor,
+            Amount = transaction.Amount,
+            Description = transaction.Description,
+            Number = transaction.Number,
+            ItemIds = transaction.ItemIds  // Use the custom property in Transaction model to get Item IDs
+        };
+
+        return transactionDto;
     }
 
     [HttpPost]

@@ -22,4 +22,13 @@ public class Transaction
     public string? Number{ get; set; }
 
     public ICollection<ItemTransaction>? ItemTransactions { get; set; }
+
+    public List<int> ItemIds
+    {
+        get
+        {
+            // Extract Item IDs from ItemTransactions and return as a list
+            return ItemTransactions?.Select(it => it.ItemId).ToList() ?? new List<int>();
+        }
+    }
 }
