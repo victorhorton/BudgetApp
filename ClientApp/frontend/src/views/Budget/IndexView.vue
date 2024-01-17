@@ -114,7 +114,7 @@
               <div class="col-auto">
                 <button
                   class="btn-close"
-                  @click="deleteTransactions(transaction)"
+                  @click="deleteTransaction(transaction)"
                 ></button>
               </div>
             </div>
@@ -205,36 +205,15 @@
                         />
                       </div>
                     </div>
-                    <div
-                      class="row my-2"
-                      v-for="itemTransaction in transaction.itemTransactions"
-                      :key="itemTransaction.itemId"
-                    >
-                      <div class="col">
-                        {{ itemName(itemTransaction.itemId) }}
-                      </div>
-                      <div class="col-auto">
-                        <button
-                          type="button"
-                          class="btn-close"
-                          @click="
-                            deleteRelationship(
-                              itemTransaction.itemId,
-                              transaction
-                            )
-                          "
-                        ></button>
-                      </div>
-                    </div>
                     <div class="row my-2">
                       <div class="col">
                         <select
-                          @change="addItemTransaction(transaction)"
+                          v-model="transaction.itemId"
                           class="form-select"
                         >
-                          <option selected></option>
+                          <option :value="null"></option>
                           <option
-                            v-for="item in filteredItems(transaction)"
+                            v-for="item in items"
                             :key="item.id"
                             :value="item.id"
                           >
@@ -351,11 +330,7 @@
             </div>
             <div class="row">
               <div class="col">
-                <select
-                  v-model="newTransaction.ItemIds"
-                  multiple
-                  class="form-select"
-                >
+                <select v-model="newTransaction.itemId" class="form-select">
                   <option v-for="item in items" :key="item.id" :value="item.id">
                     {{ item.name }}
                   </option>
@@ -394,7 +369,7 @@ export default {
         amount: 0,
         number: "",
         notes: "",
-        ItemIds: []
+        itemId: ""
       },
       budget: {
         month: "",
@@ -437,30 +412,6 @@ export default {
           }
         });
     },
-    addItemTransaction(transaction) {
-      const itemId = parseInt(event.currentTarget.value);
-
-      if (itemId === "") {
-        return;
-      }
-
-      const transactionId = transaction.id;
-
-      axios
-        .post("/api/transaction/add-relationship", {
-          itemId,
-          transactionId
-        })
-        .then((response) => {
-          if (response.status === 204) {
-            transaction.itemTransactions.push({
-              item: null,
-              itemId,
-              transactionId
-            });
-          }
-        });
-    },
     addTransaction() {
       axios.post("/api/transaction", this.newTransaction).then((response) => {
         if (response.status === 201) {
@@ -489,27 +440,7 @@ export default {
         }
       });
     },
-    deleteRelationship(itemId, transaction) {
-      axios
-        .delete("/api/transaction/delete-relationship", {
-          data: {
-            itemId,
-            transactionId: transaction.id
-          }
-        })
-        .then(() => {
-          const itemTransaction = transaction.itemTransactions.find(
-            (itemTransaction) => {
-              return itemTransaction.itemId === itemId;
-            }
-          );
-          transaction.itemTransactions.splice(
-            transaction.itemTransactions.indexOf(itemTransaction),
-            1
-          );
-        });
-    },
-    deleteTransactions(transaction) {
+    deleteTransaction(transaction) {
       axios.delete(`/api/transaction/${transaction.id}`).then((response) => {
         if (response.status === 204) {
           this.transactions.splice(this.transactions.indexOf(transaction), 1);
@@ -527,16 +458,6 @@ export default {
         return "";
       }
     },
-    filteredItems(transaction) {
-      const currentItems = transaction.itemTransactions.map(
-        (itemTransaction) => {
-          return itemTransaction.itemId;
-        }
-      );
-      return this.items.filter((item) => {
-        return !currentItems.includes(item.id);
-      });
-    },
     updateItem(item) {
       delete item.error;
       axios.put(`/api/item/${item.id}`, item).catch((error) => {
@@ -553,14 +474,6 @@ export default {
       axios
         .put(`/api/transaction/${transaction.id}`, transaction)
         .then(() => {
-          transaction.newItemIds.forEach((newItemId) => {
-            transaction.itemTransactions.push({
-              item: null,
-              itemId: newItemId,
-              transactionId: transaction.id
-            });
-          });
-          transaction.newItemIds = [];
           const openedModal = Modal.getInstance(
             document.getElementById(`edit-transaction-${transaction.id}-modal`)
           );
@@ -580,33 +493,6 @@ export default {
           });
         })
         .flat();
-    },
-    incomeTotal() {
-      return this.budget.transactions
-        .filter((transaction) => {
-          return transaction.category === "Income";
-        })
-        .map((transaction) => {
-          return transaction.amount;
-        })
-        .reduce((accumulator, currentValue) => {
-          return accumulator + currentValue;
-        }, 0);
-    },
-    expenseTotal() {
-      return this.budget.transactions
-        .filter((transaction) => {
-          return transaction.category !== "Income";
-        })
-        .map((transaction) => {
-          return transaction.amount;
-        })
-        .reduce((accumulator, currentValue) => {
-          return accumulator + currentValue;
-        }, 0);
-    },
-    isBalanced() {
-      return this.incomeTotal === this.expenseTotal;
     }
   }
 };
