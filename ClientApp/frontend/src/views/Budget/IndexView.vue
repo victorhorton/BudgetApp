@@ -21,7 +21,7 @@
           <div class="card">
             <div class="card-body">
               <div class="row">
-                <div class="col">
+                <div class="col-6">
                   <input
                     type="text"
                     class="form-control"
@@ -33,6 +33,12 @@
                     {{ category.error }}
                   </div>
                 </div>
+                <div class="col">
+                  <p>Planned Amount</p>
+                </div>
+                <div class="col">
+                  <p>Amount Remaining</p>
+                </div>
               </div>
               <div class="row my-3">
                 <div class="col">
@@ -43,7 +49,7 @@
                       :key="item.id"
                     >
                       <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                           <input
                             type="text"
                             class="form-control"
@@ -55,15 +61,33 @@
                           <input
                             type="number"
                             class="form-control"
-                            v-model.number="item.plannedAmount"
+                            v-model.lazy.number="item.plannedAmount"
                             @change="updateItem(item)"
                           />
+                        </div>
+                        <div class="col">
+                          {{ amountRemaining(item) }}
                         </div>
                         <div class="col-auto">
                           <button
                             class="btn-close"
                             @click="deleteItem(item, category)"
                           ></button>
+                        </div>
+                      </div>
+                      <div class="row my-2">
+                        <div class="col">
+                          <div class="progress" style="height: 1px">
+                            <div
+                              class="progress-bar"
+                              role="progressbar"
+                              aria-label="Item Progress"
+                              :style="`width: ${itemProgress(item)}%`"
+                              :aria-valuenow="`${itemProgress(item)}`"
+                              aria-valuemin="0"
+                              aria-valuemax="100"
+                            ></div>
+                          </div>
                         </div>
                       </div>
                     </li>
@@ -423,6 +447,20 @@ export default {
         }
       });
     },
+    amountRemaining(item) {
+      const itemTransactions = this.transactions.filter((transaction) => {
+        return transaction.itemId === item.id;
+      });
+      const transacitonsTotal = itemTransactions
+        .map((transaction) => {
+          return transaction.amount;
+        })
+        .reduce((amountA, amountB) => {
+          return amountA + amountB;
+        }, 0);
+
+      return item.plannedAmount - transacitonsTotal;
+    },
     deleteCategory(category) {
       axios.delete(`/api/category/${category.id}`).then((response) => {
         if (response.status === 204) {
@@ -457,6 +495,9 @@ export default {
       } else {
         return "";
       }
+    },
+    itemProgress(item) {
+      return (this.amountRemaining(item) / item.plannedAmount) * 100;
     },
     updateItem(item) {
       delete item.error;
