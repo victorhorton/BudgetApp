@@ -7,4 +7,6 @@ public class ItemTransaction
 
     public int TransactionId { get; set; }
     public Transaction? Transaction { get; set; }
+
+    public decimal Amount { get; set; }
 }
