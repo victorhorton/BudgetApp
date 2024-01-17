@@ -20,5 +20,5 @@ public class TransactionCreationDto
 
     public string? Number { get; set; }
 
-    public List<int>? NewItemIds { get; set; }
+    public List<int>? ItemIds { get; set; }
 }

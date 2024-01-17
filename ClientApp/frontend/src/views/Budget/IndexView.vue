@@ -229,10 +229,10 @@
                     <div class="row my-2">
                       <div class="col">
                         <select
-                          v-model="transaction.newItemIds"
-                          multiple
+                          @change="addItemTransaction(transaction)"
                           class="form-select"
                         >
+                          <option selected></option>
                           <option
                             v-for="item in filteredItems(transaction)"
                             :key="item.id"
@@ -352,7 +352,7 @@
             <div class="row">
               <div class="col">
                 <select
-                  v-model="newTransaction.newItemIds"
+                  v-model="newTransaction.ItemIds"
                   multiple
                   class="form-select"
                 >
@@ -394,7 +394,7 @@ export default {
         amount: 0,
         number: "",
         notes: "",
-        newItemIds: []
+        ItemIds: []
       },
       budget: {
         month: "",
@@ -435,6 +435,25 @@ export default {
         .then((response) => {
           if (response.status === 201) {
             category.items.push(response.data);
+          }
+        });
+    },
+    addItemTransaction(transaction) {
+      const itemId = parseInt(event.currentTarget.value);
+      const transactionId = transaction.id;
+
+      axios
+        .post("/api/transaction/add-relationship", {
+          itemId,
+          transactionId
+        })
+        .then((response) => {
+          if (response.status === 204) {
+            transaction.itemTransactions.push({
+              item: null,
+              itemId,
+              transactionId
+            });
           }
         });
     },

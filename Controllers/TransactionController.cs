@@ -67,9 +67,9 @@ public class TransactionController : ControllerBase
         await _dataContext.SaveChangesAsync();
 
         // Loop through each Item ID in the DTO and create associations in the junction table
-        if (transactionDto.NewItemIds != null)
+        if (transactionDto.ItemIds != null)
         {
-            foreach (var newItemId in transactionDto.NewItemIds)
+            foreach (var newItemId in transactionDto.ItemIds)
             {
                 var itemTransaction = new ItemTransaction
                 {
@@ -91,45 +91,40 @@ public class TransactionController : ControllerBase
 
     // PUT: api/transactions/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTransaction(int id, TransactionCreationDto transactionDto)
+    public async Task<IActionResult> UpdateTransaction(int id, Transaction transaction)
     {
-        var transaction = await _dataContext.Transactions.FindAsync(id);
-
-        if (transaction == null)
-        {
-            return NotFound("Transaction not found.");
-        }
-
-        transaction.Date = transactionDto.Date;
-        transaction.Type = transactionDto.Type;
-        transaction.Vendor = transactionDto.Vendor;
-        transaction.Amount = transactionDto.Amount;
-        transaction.Description = transactionDto.Description;
-        transaction.Number = transactionDto.Number;
-
-        if (transactionDto.NewItemIds != null) {
-            foreach (var itemId in transactionDto.NewItemIds)
-            {
-                var item = await _dataContext.Items.FindAsync(itemId);
-
-                if (item == null)
-                {
-                    continue; // or return NotFound($"Item with ID {itemId} not found");
-                }
-
-                var itemTransaction = new ItemTransaction
-                {
-                    ItemId = itemId,
-                    TransactionId = id
-                };
-
-                _dataContext.ItemTransactions.Add(itemTransaction);
-            }
-        }
-
+        _dataContext.Update(transaction);
         await _dataContext.SaveChangesAsync();
 
         return NoContent(); // 204 No Content response upon successful update
+    }
+
+    [HttpPost("add-relationship")]
+    public async Task<IActionResult> AddRelationship([FromBody] AddItemToTransactionRequest request)
+    {
+        var item = await _dataContext.Items.FindAsync(request.ItemId);
+        var transaction = await _dataContext.Transactions.FindAsync(request.TransactionId);
+
+        if (item == null)
+        {
+            return NotFound("Item not found");
+        }
+
+        if (transaction == null)
+        {
+            return NotFound("Transaction not found");
+        }
+
+        var itemTransaction = new ItemTransaction
+        {
+            ItemId = request.ItemId,
+            TransactionId = request.TransactionId,
+        };
+
+        _dataContext.ItemTransactions.Add(itemTransaction);
+        await _dataContext.SaveChangesAsync();
+
+        return NoContent();
     }
     
     // DELETE api/transactions/5
