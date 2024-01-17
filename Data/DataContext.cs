@@ -14,7 +14,6 @@ public class DataContext : DbContext
     public DbSet<Item> Items => Set<Item>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Category> Categories => Set<Category>();
-    public DbSet<ItemTransaction> ItemTransactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,17 +27,9 @@ public class DataContext : DbContext
             .WithOne(c => c.Category)
             .HasForeignKey(c => c.CategoryId);
 
-        modelBuilder.Entity<ItemTransaction>()
-            .HasKey(it => new { it.ItemId, it.TransactionId });
-
-        modelBuilder.Entity<ItemTransaction>()
-            .HasOne(it => it.Item)
-            .WithMany(i => i.ItemTransactions)
-            .HasForeignKey(it => it.ItemId);
-
-        modelBuilder.Entity<ItemTransaction>()
-            .HasOne(it => it.Transaction)
-            .WithMany(t => t.ItemTransactions)
-            .HasForeignKey(it => it.TransactionId);
+        modelBuilder.Entity<Item>()
+            .HasMany(b => b.Transactions)
+            .WithOne(c => c.Item)
+            .HasForeignKey(c => c.ItemId);
     }
 }

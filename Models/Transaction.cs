@@ -21,14 +21,6 @@ public class Transaction
 
     public string? Number{ get; set; }
 
-    public ICollection<ItemTransaction>? ItemTransactions { get; set; }
-
-    public List<int> NewItemIds
-    {
-        get
-        {
-            // Extract Item IDs from ItemTransactions and return as a list
-            return new List<int>();
-        }
-    }
+    public int ItemId { get; set; } // Required foreign key property
+    public Item? Item { get; set; }
 }

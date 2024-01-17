@@ -72,24 +72,6 @@ namespace BudgetApp.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("BudgetApp.Models.ItemTransaction", b =>
-                {
-                    b.Property<int>("ItemId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("ItemId", "TransactionId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.ToTable("ItemTransactions");
-                });
-
             modelBuilder.Entity("BudgetApp.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -105,6 +87,9 @@ namespace BudgetApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Number")
                         .HasColumnType("TEXT");
 
@@ -115,6 +100,8 @@ namespace BudgetApp.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
 
                     b.ToTable("Transactions");
                 });
@@ -141,23 +128,15 @@ namespace BudgetApp.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("BudgetApp.Models.ItemTransaction", b =>
+            modelBuilder.Entity("BudgetApp.Models.Transaction", b =>
                 {
                     b.HasOne("BudgetApp.Models.Item", "Item")
-                        .WithMany("ItemTransactions")
+                        .WithMany("Transactions")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BudgetApp.Models.Transaction", "Transaction")
-                        .WithMany("ItemTransactions")
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Item");
-
-                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("BudgetApp.Models.Budget", b =>
@@ -172,12 +151,7 @@ namespace BudgetApp.Migrations
 
             modelBuilder.Entity("BudgetApp.Models.Item", b =>
                 {
-                    b.Navigation("ItemTransactions");
-                });
-
-            modelBuilder.Entity("BudgetApp.Models.Transaction", b =>
-                {
-                    b.Navigation("ItemTransactions");
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

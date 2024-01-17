@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetApp.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240106004231_AddNewModels")]
-    partial class AddNewModels
+    [Migration("20240117220453_CleanMigration")]
+    partial class CleanMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,7 +90,13 @@ namespace BudgetApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ItemId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Number")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Type")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Vendor")
@@ -98,28 +104,15 @@ namespace BudgetApp.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ItemId");
+
                     b.ToTable("Transactions");
-                });
-
-            modelBuilder.Entity("ItemTransaction", b =>
-                {
-                    b.Property<int>("ItemsId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TransactionsId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ItemsId", "TransactionsId");
-
-                    b.HasIndex("TransactionsId");
-
-                    b.ToTable("ItemTransaction");
                 });
 
             modelBuilder.Entity("BudgetApp.Models.Category", b =>
                 {
                     b.HasOne("BudgetApp.Models.Budget", "Budget")
-                        .WithMany("Categoryies")
+                        .WithMany("Categories")
                         .HasForeignKey("BudgetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -138,29 +131,30 @@ namespace BudgetApp.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("ItemTransaction", b =>
+            modelBuilder.Entity("BudgetApp.Models.Transaction", b =>
                 {
-                    b.HasOne("BudgetApp.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsId")
+                    b.HasOne("BudgetApp.Models.Item", "Item")
+                        .WithMany("Transactions")
+                        .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BudgetApp.Models.Transaction", null)
-                        .WithMany()
-                        .HasForeignKey("TransactionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Item");
                 });
 
             modelBuilder.Entity("BudgetApp.Models.Budget", b =>
                 {
-                    b.Navigation("Categoryies");
+                    b.Navigation("Categories");
                 });
 
             modelBuilder.Entity("BudgetApp.Models.Category", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("BudgetApp.Models.Item", b =>
+                {
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }

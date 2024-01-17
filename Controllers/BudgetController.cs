@@ -22,7 +22,7 @@ public class BudgetController : ControllerBase
         var budget = await _dataContext.Budgets
             .Include(budget => budget.Categories)
             .ThenInclude(category => category.Items)
-            .SingleOrDefaultAsync(x => x.Id == 2);
+            .SingleOrDefaultAsync(x => x.Id == 1);
 
         if (budget == null)
         {
