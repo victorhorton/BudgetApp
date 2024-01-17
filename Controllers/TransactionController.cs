@@ -3,7 +3,6 @@ using BudgetApp.Models;
 using BudgetApp.Data;
 using Microsoft.EntityFrameworkCore;
 using BudgetApp.Requests;
-using BudgetApp.DTOs;
 
 namespace BudgetApp.Controllers;
 
@@ -145,13 +144,13 @@ public class TransactionController : ControllerBase
     }
     
     [HttpDelete("delete-relationship")]
-    public IActionResult DeleteRelationship([FromBody] ItemTransactionDTO itemTransactionDTO)
+    public IActionResult DeleteRelationship([FromBody] DeleteItemTransactionRequest request)
     {
         try
         {
             // Retrieve the transaction and item from the database based on IDs
-            var transaction = _dataContext.Transactions.Find(itemTransactionDTO.TransactionId);
-            var item = _dataContext.Items.Find(itemTransactionDTO.ItemId);
+            var transaction = _dataContext.Transactions.Find(request.TransactionId);
+            var item = _dataContext.Items.Find(request.ItemId);
 
             if (transaction == null || item == null)
             {
