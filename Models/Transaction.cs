@@ -21,6 +21,6 @@ public class Transaction
 
     public string? Number{ get; set; }
 
-    public int ItemId { get; set; } // Required foreign key property
+    public int? ItemId { get; set; }
     public Item? Item { get; set; }
 }
