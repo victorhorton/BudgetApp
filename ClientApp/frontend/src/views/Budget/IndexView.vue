@@ -422,7 +422,6 @@ export default {
           if (response.status === 201) {
             this.budget.categories.push(response.data);
           }
-          console.log(response);
         });
     },
     addItem(category) {
@@ -440,6 +439,11 @@ export default {
     },
     addItemTransaction(transaction) {
       const itemId = parseInt(event.currentTarget.value);
+
+      if (itemId === "") {
+        return;
+      }
+
       const transactionId = transaction.id;
 
       axios
