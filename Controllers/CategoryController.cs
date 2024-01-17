@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BudgetApp.Models;
 using BudgetApp.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace BudgetApp.Controllers;
 
