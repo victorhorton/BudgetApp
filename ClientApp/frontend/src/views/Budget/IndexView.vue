@@ -120,142 +120,336 @@
       </div>
     </div>
     <div class="col-4">
-      <ul class="list-group list-group-flush">
-        <template v-for="transaction in transactions" :key="transaction.id">
-          <li class="list-group-item list-group-item-action">
-            <div class="row">
-              <div class="col">
-                <div
-                  class="row pe-click"
-                  data-bs-toggle="modal"
-                  :data-bs-target="`#edit-transaction-${transaction.id}-modal`"
-                >
-                  <div class="col">{{ transaction.date }}</div>
-                  <div class="col">{{ transaction.vendor }}</div>
-                  <div class="col">{{ transaction.amount }}</div>
-                </div>
-              </div>
-              <div class="col-auto">
-                <button
-                  class="btn-close"
-                  @click="deleteTransaction(transaction)"
-                ></button>
-              </div>
-            </div>
-          </li>
-          <div
-            class="modal fade"
-            :id="`edit-transaction-${transaction.id}-modal`"
-            tabindex="-1"
-            :aria-labelledby="`edit-transaction-${transaction.id}-modal-label`"
-            aria-hidden="true"
+      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="untracked-transactions-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#untracked-transactions"
+            type="button"
+            role="tab"
+            aria-controls="untracked-transactions"
+            aria-selected="true"
           >
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h1
-                    class="modal-title fs-5"
-                    :id="`edit-transaction-${transaction.id}-modal-label`"
-                  >
-                    Edit Transaction
-                  </h1>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <form @submit.prevent="updateTransaction(transaction)">
-                  <div class="modal-body">
-                    <div class="row my-2">
-                      <div class="col-auto">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            :id="`incomeRadio-${transaction.id}`"
-                            value="income"
-                            v-model="transaction.type"
-                          />
-                          <label
-                            class="form-check-label"
-                            :for="`incomeRadio-${transaction.id}`"
-                          >
-                            Income
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-auto">
-                        <div class="form-check">
-                          <input
-                            class="form-check-input"
-                            type="radio"
-                            :id="`expenseRadio-${transaction.id}`"
-                            value="expense"
-                            v-model="transaction.type"
-                          />
-                          <label
-                            class="form-check-label"
-                            :for="`expenseRadio-${transaction.id}`"
-                          >
-                            Expense
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row my-2">
-                      <div class="col">
-                        <input
-                          type="number"
-                          class="form-control"
-                          v-model.number="transaction.amount"
-                        />
-                      </div>
-                    </div>
-                    <div class="row my-2">
-                      <div class="col-auto">
-                        <input
-                          type="date"
-                          class="form-control"
-                          v-model="transaction.date"
-                        />
-                      </div>
-                      <div class="col">
-                        <input
-                          type="text"
-                          class="form-control"
-                          v-model="transaction.vendor"
-                        />
-                      </div>
-                    </div>
-                    <div class="row my-2">
-                      <div class="col">
-                        <select
-                          v-model="transaction.itemId"
-                          class="form-select"
-                        >
-                          <option :value="null"></option>
-                          <option
-                            v-for="item in items"
-                            :key="item.id"
-                            :value="item.id"
-                          >
-                            {{ item.name }}
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button class="btn btn-primary">Save changes</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </template>
+            Untracked Transactions
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="tracked-transactions-tab"
+            data-bs-toggle="pill"
+            data-bs-target="#tracked-transactions"
+            type="button"
+            role="tab"
+            aria-controls="tracked-transactions"
+            aria-selected="false"
+          >
+            Tracked Transactions
+          </button>
+        </li>
       </ul>
+      <div class="tab-content" id="pills-tabContent">
+        <div
+          class="tab-pane fade show active"
+          id="untracked-transactions"
+          role="tabpanel"
+          aria-labelledby="untracked-transactions-tab"
+          tabindex="0"
+        >
+          <ul class="list-group list-group-flush">
+            <template
+              v-for="transaction in transactions.filter((transaction) => {
+                return transaction.itemId === '' || transaction.itemId == null;
+              })"
+              :key="transaction.id"
+            >
+              <li class="list-group-item list-group-item-action">
+                <div class="row">
+                  <div class="col">
+                    <div
+                      class="row pe-click"
+                      data-bs-toggle="modal"
+                      :data-bs-target="`#edit-transaction-${transaction.id}-modal`"
+                    >
+                      <div class="col">{{ transaction.date }}</div>
+                      <div class="col">{{ transaction.vendor }}</div>
+                      <div class="col">{{ transaction.amount }}</div>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <button
+                      class="btn-close"
+                      @click="deleteTransaction(transaction)"
+                    ></button>
+                  </div>
+                </div>
+              </li>
+              <div
+                class="modal fade"
+                :id="`edit-transaction-${transaction.id}-modal`"
+                tabindex="-1"
+                :aria-labelledby="`edit-transaction-${transaction.id}-modal-label`"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1
+                        class="modal-title fs-5"
+                        :id="`edit-transaction-${transaction.id}-modal-label`"
+                      >
+                        Edit Transaction
+                      </h1>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <form @submit.prevent="updateTransaction(transaction)">
+                      <div class="modal-body">
+                        <div class="row my-2">
+                          <div class="col-auto">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                :id="`incomeRadio-${transaction.id}`"
+                                value="income"
+                                v-model="transaction.type"
+                              />
+                              <label
+                                class="form-check-label"
+                                :for="`incomeRadio-${transaction.id}`"
+                              >
+                                Income
+                              </label>
+                            </div>
+                          </div>
+                          <div class="col-auto">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                :id="`expenseRadio-${transaction.id}`"
+                                value="expense"
+                                v-model="transaction.type"
+                              />
+                              <label
+                                class="form-check-label"
+                                :for="`expenseRadio-${transaction.id}`"
+                              >
+                                Expense
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row my-2">
+                          <div class="col">
+                            <input
+                              type="number"
+                              class="form-control"
+                              v-model.number="transaction.amount"
+                            />
+                          </div>
+                        </div>
+                        <div class="row my-2">
+                          <div class="col-auto">
+                            <input
+                              type="date"
+                              class="form-control"
+                              v-model="transaction.date"
+                            />
+                          </div>
+                          <div class="col">
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="transaction.vendor"
+                            />
+                          </div>
+                        </div>
+                        <div class="row my-2">
+                          <div class="col">
+                            <select
+                              v-model="transaction.itemId"
+                              class="form-select"
+                            >
+                              <option :value="null"></option>
+                              <option
+                                v-for="item in items"
+                                :key="item.id"
+                                :value="item.id"
+                              >
+                                {{ item.name }}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary">Save changes</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </ul>
+        </div>
+        <div
+          class="tab-pane fade"
+          id="tracked-transactions"
+          role="tabpanel"
+          aria-labelledby="tracked-transactions-tab"
+          tabindex="0"
+        >
+          <ul class="list-group list-group-flush">
+            <template
+              v-for="transaction in transactions.filter((transaction) => {
+                return transaction.itemId;
+              })"
+              :key="transaction.id"
+            >
+              <li class="list-group-item list-group-item-action">
+                <div class="row">
+                  <div class="col">
+                    <div
+                      class="row pe-click"
+                      data-bs-toggle="modal"
+                      :data-bs-target="`#edit-transaction-${transaction.id}-modal`"
+                    >
+                      <div class="col">{{ transaction.date }}</div>
+                      <div class="col">{{ transaction.vendor }}</div>
+                      <div class="col">{{ transaction.amount }}</div>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <button
+                      class="btn-close"
+                      @click="deleteTransaction(transaction)"
+                    ></button>
+                  </div>
+                </div>
+              </li>
+              <div
+                class="modal fade"
+                :id="`edit-transaction-${transaction.id}-modal`"
+                tabindex="-1"
+                :aria-labelledby="`edit-transaction-${transaction.id}-modal-label`"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1
+                        class="modal-title fs-5"
+                        :id="`edit-transaction-${transaction.id}-modal-label`"
+                      >
+                        Edit Transaction
+                      </h1>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <form @submit.prevent="updateTransaction(transaction)">
+                      <div class="modal-body">
+                        <div class="row my-2">
+                          <div class="col-auto">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                :id="`incomeRadio-${transaction.id}`"
+                                value="income"
+                                v-model="transaction.type"
+                              />
+                              <label
+                                class="form-check-label"
+                                :for="`incomeRadio-${transaction.id}`"
+                              >
+                                Income
+                              </label>
+                            </div>
+                          </div>
+                          <div class="col-auto">
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                type="radio"
+                                :id="`expenseRadio-${transaction.id}`"
+                                value="expense"
+                                v-model="transaction.type"
+                              />
+                              <label
+                                class="form-check-label"
+                                :for="`expenseRadio-${transaction.id}`"
+                              >
+                                Expense
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row my-2">
+                          <div class="col">
+                            <input
+                              type="number"
+                              class="form-control"
+                              v-model.number="transaction.amount"
+                            />
+                          </div>
+                        </div>
+                        <div class="row my-2">
+                          <div class="col-auto">
+                            <input
+                              type="date"
+                              class="form-control"
+                              v-model="transaction.date"
+                            />
+                          </div>
+                          <div class="col">
+                            <input
+                              type="text"
+                              class="form-control"
+                              v-model="transaction.vendor"
+                            />
+                          </div>
+                        </div>
+                        <div class="row my-2">
+                          <div class="col">
+                            <select
+                              v-model="transaction.itemId"
+                              class="form-select"
+                            >
+                              <option :value="null"></option>
+                              <option
+                                v-for="item in items"
+                                :key="item.id"
+                                :value="item.id"
+                              >
+                                {{ item.name }}
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary">Save changes</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
   <div class="row justify-content-between">
